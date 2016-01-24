@@ -4,19 +4,38 @@
     <title>Extra hours</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/css/bootstrap-datetimepicker.min.css">
+    <style>
+        body { margin-top: 5%; }
+        .minute-input-form {
+            margin-top: 2em;
+            margin-bottom: 5em;
+        }
+
+        #total {
+            font-size: 30pt;
+        }
+    </style>
 </head>
 <body>
     <div id="app-container" class="container">
         <div class="row">
             <div class='col-sm-6'>
                 <div id="datetimepicker"></div>
+                <div class="minute-input-form form-group form-group-lg row" id="date-edit">
+                    <div class="col-xs-6 col-lg-offset-4 col-lg-5">
+                        <div class="input-group">
+                            <input id="minute-input" type="number" class="form-control" placeholder="0">
+                            <div class="input-group-addon">minutes</div>
+                        </div>
+                    </div>
+                    <div class="col-xs-6 col-lg-3">
+                        <button id="save-day" class="btn btn-lg btn-primary btn-block">Save</button>
+                    </div>
+                </div>
             </div>
             <div class="col-sm-6">
+                <h3>Current total</h3>
                 <div id="total">
-                </div>
-                <div id="date-edit">
-                    <input type="text" id="minute-input" placeholder="0" />
-                    <button id="save-day">Save</button>
                 </div>
             </div>
         </div>

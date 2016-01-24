@@ -92,7 +92,11 @@ var MainView = Backbone.View.extend({
             format: 'YYYY-MM-DD'
         });
 
+        var ISO_FORMAT = 'YYYY-MM-DD';
+
         this.editor = new EditorView({el: this.$('#date-edit')});
+        this.editor.changeDate(dp.data("DateTimePicker").date().format(ISO_FORMAT));
+
         this.total_view = new TotalView({
             el: this.$('#total'),
             collection: this.collection
@@ -100,7 +104,7 @@ var MainView = Backbone.View.extend({
         var that = this;
 
         dp.on('dp.change', function(e) {
-            var iso_date = e.date.format('YYYY-MM-DD');
+            var iso_date = e.date.format(ISO_FORMAT);
             that.editor.changeDate(iso_date);
             that.renderAll();
         });
