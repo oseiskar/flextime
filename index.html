@@ -2,13 +2,20 @@
 <html>
 <head>
     <title>Extra hours</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/css/bootstrap-datetimepicker.min.css">
 </head>
 <body>
-    <div id="app-container">
-        <ul id="day-list">
-        </ul>
-        <input type="text" id="minute-input" placeholder="0" />
-        <button id="save-day">Save</button>
+    <div id="app-container" class="container">
+        <div class="row">
+            <div class='col-sm-6'>
+                <div id="datetimepicker"></div>
+            </div>
+            <div class="col-sm-6" id="date-edit">
+                <input type="text" id="minute-input" placeholder="0" />
+                <button id="save-day">Save</button>
+            </div>
+        </div>
     </div>
 </body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.0/jquery.js"></script>
@@ -16,5 +23,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.2.3/backbone-min.js"></script>
 <script src="https://cdn.firebase.com/js/client/2.4.0/firebase.js"></script>
 <script src="https://cdn.firebase.com/libs/backbonefire/0.5.1/backbonefire.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.1/moment.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/js/bootstrap-datetimepicker.min.js"></script>
 <script src="main.js"></script>
 </html>
