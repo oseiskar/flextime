@@ -2,7 +2,7 @@ var FIREBASE_URL = "https://shining-fire-655.firebaseio.com";
 var LOGIN_PROVIDER = "google";
 
 var backend = null;
-var current_user = { uid: 'foobar' };
+var current_user = null;
 
 function CURRENT_USER_DAYS_ROOT() {
     if (!current_user) throw("not logged in");
@@ -136,6 +136,8 @@ var MainView = Backbone.View.extend({
             });
 
             dp.on('dp.update', function() { that.renderAll(); });
+
+            that.$el.removeClass('hidden');
         });
     },
     renderAll: function() {
@@ -152,10 +154,17 @@ var MainView = Backbone.View.extend({
 });
 
 var LoginView = Backbone.View.extend({
+    el: $('#navbar'),
+    events: {
+        "click #log-out" : "logout",
+    },
     initialize: function() {
         backend = new Firebase(FIREBASE_URL);
+        this.login_name = this.$('#login-name');
 
-        if (!backend.getAuth()) this.requestLogin();
+        if (!backend.getAuth()) {
+            this.requestLogin();
+        }
 
         _.bindAll(this, 'onAuth', 'authError');
         backend.onAuth(this.onAuth);
@@ -174,11 +183,18 @@ var LoginView = Backbone.View.extend({
     },
     login: function(authData) {
         current_user = authData;
+
+        this.login_name.text(authData.uid);
         this.app = new MainView({ collection: new DayCollection() });
     },
     logout: function() {
+        if (!current_user) return;
+
         current_user = null;
+        backend.unauth();
         if (this.app) this.app.remove();
+        this.$el.hide(400, _.bind(this.remove, this));
+        $('#bye').removeClass('hidden').hide().fadeIn(400);
     }
 });
 
