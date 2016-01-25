@@ -73,15 +73,17 @@ var EditorView = Backbone.View.extend({
         if (this.day_view !== null) this.day_view.remove();
         this.$el.html('');
 
+        this.selected_date = iso_date;
+
         var new_el = $('<div/>');
         this.$el.append(new_el);
         new_el.html(this.template);
 
-        var model = this.collection.get(iso_date);
+        var model = this.collection.get(this.selected_date);
 
         this.day_view = new DayEditView({
             el: new_el,
-            model: new EditableDay({id: iso_date})
+            model: new EditableDay({id: this.selected_date})
         });
     }
 });
@@ -149,7 +151,12 @@ var MainView = Backbone.View.extend({
     },
     renderOne: function(day) {
         var el = this.calendar.find('[data-day="'+day.yankeeDay()+'"]');
-        el.attr('style', 'font-weight: bold; color: #008000');
+        if (day.id === this.editor.selected_date) return;
+        var color = 'white';
+        var minutes = day.get('minutes');
+        if (minutes > 0) color = '#ccffcc';
+        if (minutes < 0) color = '#ffcccc';
+        el.attr('style', 'background-color: '+color);
     }
 });
 
@@ -161,6 +168,7 @@ var LoginView = Backbone.View.extend({
     initialize: function() {
         backend = new Firebase(FIREBASE_URL);
         this.login_name = this.$('#login-name');
+        this.message = $('#message');
 
         if (!backend.getAuth()) {
             this.requestLogin();
@@ -194,7 +202,8 @@ var LoginView = Backbone.View.extend({
         backend.unauth();
         if (this.app) this.app.remove();
         this.$el.hide(400, _.bind(this.remove, this));
-        $('#bye').removeClass('hidden').hide().fadeIn(400);
+        this.message.text('Bye!');
+        this.message.hide().fadeIn(400);
     }
 });
 
