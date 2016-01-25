@@ -1,0 +1,20 @@
+{
+    "rules": {
+      "users": {
+        "$user_id": {
+          ".read": "$user_id === auth.uid",
+          ".write": "$user_id === auth.uid",
+          "days": {
+              "$date": {
+                  ".validate": "newData.hasChild('minutes') && $date.matches(/^[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]$/)",
+                  "minutes": {
+                      ".validate": "newData.isNumber()"
+                  },
+                  "$other": { ".validate": false }
+              }
+          },
+          "$other": { ".validate": false }
+        }
+      }
+    }
+}

@@ -1,5 +1,13 @@
 var FIREBASE_URL = "https://shining-fire-655.firebaseio.com";
-var DAYS_ROOT = FIREBASE_URL + '/days';
+var LOGIN_PROVIDER = "google";
+
+var backend = null;
+var current_user = { uid: 'foobar' };
+
+function CURRENT_USER_DAYS_ROOT() {
+    if (!current_user) throw("not logged in");
+    return backend.child('users/' + current_user.uid + '/days');
+}
 
 // ------ models
 
@@ -8,19 +16,21 @@ var DAYS_ROOT = FIREBASE_URL + '/days';
  * used with a Backbone.Firebase.Collection.". Not sure why...
  */
 
+ var EditableDay = Backbone.Firebase.Model.extend({
+     url: function() {
+         return CURRENT_USER_DAYS_ROOT().child(this.id);
+     },
+ });
+
 var Day = Backbone.Model.extend({
   yankeeDay: function() {
       return moment(this.id).format('MM/DD/YYYY');
   }
 });
 
-var EditableDay = Backbone.Firebase.Model.extend({
-    urlRoot: DAYS_ROOT
-});
-
 var DayCollection = Backbone.Firebase.Collection.extend({
   model: Day,
-  url: DAYS_ROOT,
+  url: CURRENT_USER_DAYS_ROOT,
 
   totalMinutes: function() {
       var sum = 0;
@@ -47,7 +57,7 @@ var DayEditView = Backbone.View.extend({
         return this;
     },
     saveDay: function() {
-        this.model.set({minutes: this.input.val()});
+        this.model.set({minutes: parseInt(this.input.val())});
     }
 });
 
@@ -88,13 +98,6 @@ var TotalView = Backbone.View.extend({
         var total = this.collection.totalMinutes();
         this.$el.html(''+total);
     }
-});
-
-var DayView = Backbone.View.extend({
-    render: function() {
-        this.$el.html(this.model.minutes);
-        return this;
-    },
 });
 
 var MainView = Backbone.View.extend({
@@ -148,7 +151,37 @@ var MainView = Backbone.View.extend({
     }
 });
 
+var LoginView = Backbone.View.extend({
+    initialize: function() {
+        backend = new Firebase(FIREBASE_URL);
+
+        if (!backend.getAuth()) this.requestLogin();
+
+        _.bindAll(this, 'onAuth', 'authError');
+        backend.onAuth(this.onAuth);
+    },
+    requestLogin: function() {
+        backend.authAnonymously(this.authError);
+    },
+    authError: function(error) {
+        if (error) {
+            console.log('login failed with error '+error);
+        }
+    },
+    onAuth: function(authData) {
+        if (authData) this.login(authData);
+        else this.logout();
+    },
+    login: function(authData) {
+        current_user = authData;
+        this.app = new MainView({ collection: new DayCollection() });
+    },
+    logout: function() {
+        current_user = null;
+        if (this.app) this.app.remove();
+    }
+});
+
 $(function() {
-    var collection = new DayCollection();
-    var app = new MainView({ collection: collection });
+    var app = new LoginView();
 });
