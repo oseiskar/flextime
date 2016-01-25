@@ -1,60 +1,21 @@
 var FIREBASE_URL = "https://shining-fire-655.firebaseio.com";
 var DAYS_ROOT = FIREBASE_URL + '/days';
 
-var Day = Backbone.Firebase.Model.extend({
-  urlRoot: DAYS_ROOT,
+// ------ models
+
+/*
+ * Two different models because "A Backbone.Firebase.Model should not be
+ * used with a Backbone.Firebase.Collection.". Not sure why...
+ */
+
+var Day = Backbone.Model.extend({
   yankeeDay: function() {
       return moment(this.id).format('MM/DD/YYYY');
   }
 });
 
-var DayEditView = Backbone.View.extend({
-    events: {
-        "click #save-day" : "saveDay",
-    },
-    initialize: function() {
-        this.input = this.$("#minute-input");
-        this.listenTo(this.model, 'change', this.render);
-        this.render();
-    },
-    render: function() {
-        this.input.val(this.model.toJSON().minutes);
-        return this;
-    },
-    saveDay: function() {
-        this.model.set({minutes: this.input.val()});
-    }
-});
-
-var EditorView = Backbone.View.extend({
-    initialize: function() {
-        this.template = this.$el.html();
-        this.day_view = null;
-    },
-    changeDate: function(iso_date) {
-        if (this.day_view !== null) this.day_view.remove();
-        this.$el.html('');
-        var new_el = $('<div/>');
-        this.$el.append(new_el);
-        new_el.html(this.template);
-        this.day_view = new DayEditView({
-            el: new_el,
-            model: new Day({id: iso_date})
-        });
-    }
-});
-
-var TotalView = Backbone.View.extend({
-    initialize: function() {
-        var that = this;
-        this.collection.on('all', function() {
-            that.render();
-        });
-    },
-    render: function() {
-        var total = this.collection.totalMinutes();
-        this.$el.html(''+total);
-    }
+var EditableDay = Backbone.Firebase.Model.extend({
+    urlRoot: DAYS_ROOT
 });
 
 var DayCollection = Backbone.Firebase.Collection.extend({
@@ -70,11 +31,66 @@ var DayCollection = Backbone.Firebase.Collection.extend({
   }
 });
 
-var DayView = Backbone.View.extend({
-    tagName:  "li",
-    initialize: function() {
-        this.listenTo(this.model, "change", this.render);
+// ------ views
+
+var DayEditView = Backbone.View.extend({
+    events: {
+        "click #save-day" : "saveDay",
     },
+    initialize: function() {
+        this.input = this.$("#minute-input");
+        this.listenTo(this.model, 'change', this.render);
+        this.render();
+    },
+    render: function() {
+        this.input.val(this.model.get('minutes'));
+        return this;
+    },
+    saveDay: function() {
+        this.model.set({minutes: this.input.val()});
+    }
+});
+
+var EditorView = Backbone.View.extend({
+    initialize: function() {
+        // save initial contents of the element as a template
+        this.template = this.$el.html();
+        this.day_view = null;
+    },
+    changeDate: function(iso_date) {
+        // create a new Backbone view object and DOM elements
+        // each time time the date is changed
+        if (this.day_view !== null) this.day_view.remove();
+        this.$el.html('');
+
+        var new_el = $('<div/>');
+        this.$el.append(new_el);
+        new_el.html(this.template);
+
+        var model = this.collection.get(iso_date);
+
+        this.day_view = new DayEditView({
+            el: new_el,
+            model: new EditableDay({id: iso_date})
+        });
+    }
+});
+
+var TotalView = Backbone.View.extend({
+    initialize: function() {
+        var that = this;
+        this.collection.on('all', function() {
+            that.render();
+        });
+        this.render();
+    },
+    render: function() {
+        var total = this.collection.totalMinutes();
+        this.$el.html(''+total);
+    }
+});
+
+var DayView = Backbone.View.extend({
     render: function() {
         this.$el.html(this.model.minutes);
         return this;
@@ -85,7 +101,6 @@ var MainView = Backbone.View.extend({
     el: $('#app-container'),
     initialize: function() {
         this.calendar = this.$("#datetimepicker");
-        this.listenTo(this.collection, 'add', this.renderOne);
 
         var dp = this.calendar.datetimepicker({
             inline: true,
@@ -94,22 +109,31 @@ var MainView = Backbone.View.extend({
 
         var ISO_FORMAT = 'YYYY-MM-DD';
 
-        this.editor = new EditorView({el: this.$('#date-edit')});
-        this.editor.changeDate(dp.data("DateTimePicker").date().format(ISO_FORMAT));
-
-        this.total_view = new TotalView({
-            el: this.$('#total'),
+        this.editor = new EditorView({
+            el: this.$('#date-edit'),
             collection: this.collection
         });
+        this.editor.changeDate(dp.data("DateTimePicker").date().format(ISO_FORMAT));
+
         var that = this;
 
-        dp.on('dp.change', function(e) {
-            var iso_date = e.date.format(ISO_FORMAT);
-            that.editor.changeDate(iso_date);
+        this.collection.on('sync', function() {
             that.renderAll();
-        });
+            that.listenTo(that.collection, 'all', that.renderAll);
 
-        dp.on('dp.update', function() { that.renderAll(); });
+            that.total_view = new TotalView({
+                el: that.$('#total'),
+                collection: that.collection
+            });
+
+            dp.on('dp.change', function(e) {
+                var iso_date = e.date.format(ISO_FORMAT);
+                that.editor.changeDate(iso_date);
+                that.renderAll();
+            });
+
+            dp.on('dp.update', function() { that.renderAll(); });
+        });
     },
     renderAll: function() {
         this.$el.find('.day').attr('style','');
