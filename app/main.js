@@ -1,3 +1,6 @@
+
+// Global variables ar handy for backbone models with user-dependent REST paths
+// and handling authentication. There is also ENV which is defined in config.js
 var backend = null;
 var current_user = null;
 
@@ -99,7 +102,7 @@ var TotalView = Backbone.View.extend({
     }
 });
 
-var MainView = Backbone.View.extend({
+var AppView = Backbone.View.extend({
     el: $('#app-container'),
     initialize: function() {
         this.calendar = this.$("#datetimepicker");
@@ -158,32 +161,53 @@ var MainView = Backbone.View.extend({
     }
 });
 
-var LoginView = Backbone.View.extend({
+var LoginButtonView = Backbone.View.extend({
+    el: $('#login-button-container'),
+    events: {
+        "click #login-button" : "login",
+    },
+
+    initialize: function() {
+
+        this.provider = ENV.login_provider;
+        _.bindAll(this, 'authHandler');
+
+        // anonymous: login automatically
+        if (this.provider === 'anonymous') return this.login();
+
+        $('#loader').hide();
+        this.$el.removeClass('hidden');
+    },
+
+    login: function() {
+        if (this.provider == 'anonymous') {
+            backend.authAnonymously(this.authHandler);
+        } else {
+            //backend.authWithOAuthRedirect(this.provider, this.authHandler);
+            backend.authWithOAuthPopup(this.provider, this.authHandler);
+        }
+    },
+
+    authHandler: function(error) {
+        if (error) {
+            console.log('login failed with error '+error);
+        }
+    },
+});
+
+var MainLoginView = Backbone.View.extend({
     el: $('#navbar'),
     events: {
         "click #log-out" : "logout",
     },
     initialize: function() {
-        backend = new Firebase(ENV.firebase);
         this.login_name = this.$('#login-name');
         this.message = $('#message');
 
-        if (!backend.getAuth()) {
-            this.requestLogin();
-        }
-
-        _.bindAll(this, 'onAuth', 'authError');
+        _.bindAll(this, 'onAuth');
         backend.onAuth(this.onAuth);
-    },
-    requestLogin: function() {
-        if (ENV.login_provider === 'anonymous') {
-            backend.authAnonymously(this.authError);
-        }
-    },
-    authError: function(error) {
-        if (error) {
-            console.log('login failed with error '+error);
-        }
+
+        if (!backend.getAuth()) this.login_button = new LoginButtonView();
     },
     onAuth: function(authData) {
         if (authData) this.login(authData);
@@ -191,9 +215,10 @@ var LoginView = Backbone.View.extend({
     },
     login: function(authData) {
         current_user = authData;
+        if (this.login_button) this.login_button.remove();
 
         this.login_name.text(authData.uid);
-        this.app = new MainView({ collection: new DayCollection() });
+        this.app = new AppView({ collection: new DayCollection() });
     },
     logout: function() {
         if (!current_user) return;
@@ -208,5 +233,6 @@ var LoginView = Backbone.View.extend({
 });
 
 $(function() {
-    var app = new LoginView();
+    backend = new Firebase(ENV.firebase);
+    var app = new MainLoginView();
 });
