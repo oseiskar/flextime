@@ -1,6 +1,3 @@
-var FIREBASE_URL = "https://shining-fire-655.firebaseio.com";
-var LOGIN_PROVIDER = "google";
-
 var backend = null;
 var current_user = null;
 
@@ -166,7 +163,7 @@ var LoginView = Backbone.View.extend({
         "click #log-out" : "logout",
     },
     initialize: function() {
-        backend = new Firebase(FIREBASE_URL);
+        backend = new Firebase(ENV.firebase);
         this.login_name = this.$('#login-name');
         this.message = $('#message');
 
@@ -178,7 +175,9 @@ var LoginView = Backbone.View.extend({
         backend.onAuth(this.onAuth);
     },
     requestLogin: function() {
-        backend.authAnonymously(this.authError);
+        if (ENV.login_provider === 'anonymous') {
+            backend.authAnonymously(this.authError);
+        }
     },
     authError: function(error) {
         if (error) {

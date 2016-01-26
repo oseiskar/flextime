@@ -1,0 +1,8 @@
+{
+  "firebase": "liukuma-staging",
+  "public": "app",
+  "rules": "security_rules.json",
+  "ignore": [
+    "**/.*"
+  ]
+}
