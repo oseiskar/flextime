@@ -136,6 +136,7 @@ var MainView = Backbone.View.extend({
 
             dp.on('dp.update', function() { that.renderAll(); });
 
+            $('#loader').hide();
             that.$el.removeClass('hidden');
         });
     },

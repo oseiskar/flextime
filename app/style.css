@@ -23,3 +23,10 @@
     position: fixed;
     top: 10%;
 }
+
+#loader {
+    text-align: center;
+    width: 100%;
+    position: fixed;
+    top: 20%;
+}
