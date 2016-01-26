@@ -3,19 +3,19 @@
 var ENV = (function(current_host){
     var envs = {
         dev: {
-            firebase: "https://liukuma-staging.firebaseio.com",
+            firebase: "https://flextime-staging.firebaseio.com",
             login_provider: "anonymous"
         },
         production: {
-            firebase: "https://liukuma.firebaseio.com",
+            firebase: "https://flextime.firebaseio.com",
             login_provider: "anonymous"
         }
     };
 
     var by_host = {
         'localhost': envs.dev,
-        'liukuma-staging.firebaseio.com': envs.dev,
-        'liukuma.firebaseio.com': envs.production
+        'flextime-staging.firebaseio.com': envs.dev,
+        'flextime.firebaseio.com': envs.production
     };
 
     if (by_host[current_host]) return by_host[current_host];
