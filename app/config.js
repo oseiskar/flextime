@@ -4,7 +4,8 @@ var ENV = (function(current_host){
     var envs = {
         dev: {
             firebase: "https://flextime-staging.firebaseio.com",
-            login_provider: "anonymous"
+            login_provider: "anonymous",
+            auto_login: false
         },
         production: {
             firebase: "https://flextime.firebaseio.com",

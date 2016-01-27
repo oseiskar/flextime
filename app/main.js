@@ -172,8 +172,7 @@ var LoginButtonView = Backbone.View.extend({
         this.provider = ENV.login_provider;
         _.bindAll(this, 'authHandler');
 
-        // anonymous: login automatically
-        if (this.provider === 'anonymous') return this.login();
+        if (ENV.auto_login) return this.login();
 
         $('#loader').hide();
         this.$el.removeClass('hidden');
