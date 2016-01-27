@@ -6,13 +6,14 @@
     margin-top: 5%;
 }
 
+.total-container {
+    text-align: center;
+    margin-top: 5%;
+}
+
 .minute-input-form {
     margin-top: 2em;
     margin-bottom: 5em;
-}
-
-.total-container {
-    text-align: center;
 }
 
 #total {
@@ -33,4 +34,28 @@
     width: 100%;
     position: fixed;
     top: 20%;
+}
+
+ul.navbar-nav {
+    min-width: 50%;
+}
+
+li.dropdown {
+    width: 100%;
+    text-align: center;
+    font-size: 12pt;
+}
+
+#login-name {
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+    color: black;
+}
+
+#total.positive {
+    color: #008000;
+}
+
+#total.negative {
+    color: #800000;
 }

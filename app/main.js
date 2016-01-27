@@ -98,7 +98,18 @@ var TotalView = Backbone.View.extend({
     },
     render: function() {
         var total = this.collection.totalMinutes();
-        this.$el.html(''+total);
+        var abs_total = Math.abs(total);
+        var hours = Math.floor(abs_total / 60);
+        var minutes = abs_total % 60;
+
+        var str = '';
+        if (total < 0) str += '- ';
+        if (hours > 0) str += hours + " h ";
+        str += minutes + ' min';
+
+        this.$el.text(str);
+        this.$el.toggleClass('negative', total < 0);
+        this.$el.toggleClass('positive', total > 0);
     }
 });
 
@@ -174,6 +185,7 @@ var LoginButtonView = Backbone.View.extend({
 
         if (ENV.auto_login) return this.login();
 
+        this.setButtonText();
         $('#loader').hide();
         this.$el.removeClass('hidden');
     },
@@ -192,6 +204,19 @@ var LoginButtonView = Backbone.View.extend({
             console.log('login failed with error '+error);
         }
     },
+
+    setButtonText: function() {
+        if (this.provider !== 'anonymous')
+            $('#login-button').text('Log in / Sign up with ' +
+                this.providerName());
+    },
+
+    providerName: function() {
+        function capitalize(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+        return capitalize(this.provider);
+    }
 });
 
 var MainLoginView = Backbone.View.extend({
@@ -215,8 +240,9 @@ var MainLoginView = Backbone.View.extend({
     login: function(authData) {
         current_user = authData;
         if (this.login_button) this.login_button.remove();
+        $('#navbar').removeClass('hidden').hide().fadeIn(500);
 
-        this.login_name.text(authData.uid);
+        this.setNavbarText(authData);
         this.app = new AppView({ collection: new DayCollection() });
     },
     logout: function() {
@@ -225,9 +251,19 @@ var MainLoginView = Backbone.View.extend({
         current_user = null;
         backend.unauth();
         if (this.app) this.app.remove();
-        this.$el.hide(400, _.bind(this.remove, this));
+        this.$el.fadeOut(500, _.bind(this.remove, this));
         this.message.text('Bye!');
-        this.message.hide().fadeIn(400);
+        this.message.hide().fadeIn(500);
+    },
+
+    setNavbarText: function(auth) {
+        if (auth.provider && auth[auth.provider].displayName) {
+            this.login_name.text(auth[auth.provider].displayName);
+            $('#auth-provider-logo').addClass('fa-'+auth.provider);
+        }
+        else {
+            this.login_name.text(auth.uid);
+        }
     }
 });
 
