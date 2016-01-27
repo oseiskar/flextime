@@ -183,8 +183,8 @@ var LoginButtonView = Backbone.View.extend({
         if (this.provider == 'anonymous') {
             backend.authAnonymously(this.authHandler);
         } else {
-            //backend.authWithOAuthRedirect(this.provider, this.authHandler);
-            backend.authWithOAuthPopup(this.provider, this.authHandler);
+            backend.authWithOAuthRedirect(this.provider, this.authHandler);
+            //backend.authWithOAuthPopup(this.provider, this.authHandler);
         }
     },
 
