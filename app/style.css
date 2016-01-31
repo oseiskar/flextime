@@ -3,7 +3,14 @@
 }
 
 #login-button-container {
-    margin-top: 5%;
+    margin-top: 10%;
+    max-width: 800px;
+    text-align: center;
+}
+
+p.staging-link-paragraph {
+    margin-top: 30px;
+    font-size: 12pt;
 }
 
 .total-container {

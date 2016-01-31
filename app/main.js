@@ -46,18 +46,27 @@ var DayCollection = Backbone.Firebase.Collection.extend({
 var DayEditView = Backbone.View.extend({
     events: {
         "click #save-day" : "saveDay",
+        "blur input" : "saveDay",
+        "keypress" : "keypress"
     },
     initialize: function() {
         this.input = this.$("#minute-input");
         this.listenTo(this.model, 'change', this.render);
         this.render();
+        this.input.focus();
     },
     render: function() {
         this.input.val(this.model.get('minutes'));
         return this;
     },
+    keypress: function(ev) {
+        // listen to Enter key
+        if (ev.which == 13) this.saveDay();
+    },
     saveDay: function() {
-        this.model.set({minutes: parseInt(this.input.val())});
+        var value = this.input.val();
+        if (value && value !== '0') this.model.set({minutes: parseInt(value)});
+        else this.model.destroy();
     }
 });
 
@@ -70,7 +79,10 @@ var EditorView = Backbone.View.extend({
     changeDate: function(iso_date) {
         // create a new Backbone view object and DOM elements
         // each time time the date is changed
-        if (this.day_view !== null) this.day_view.remove();
+        if (this.day_view) {
+            this.day_view.saveDay();
+            this.day_view.remove();
+        }
         this.$el.html('');
 
         this.selected_date = iso_date;
