@@ -247,7 +247,6 @@ var MainLoginView = Backbone.View.extend({
     },
     onAuth: function(authData) {
         if (authData) this.login(authData);
-        else this.logout();
     },
     login: function(authData) {
         current_user = authData;
