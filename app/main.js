@@ -242,31 +242,36 @@ var MainLoginView = Backbone.View.extend({
 
         _.bindAll(this, 'onAuth');
         backend.onAuth(this.onAuth);
-
-        if (!backend.getAuth()) this.login_button = new LoginButtonView();
     },
     onAuth: function(authData) {
         if (authData) this.login(authData);
+        else {
+            current_user = null;
+            if (this.app) this.app.remove();
+            if (!this.logged_out) this.showLoginButton();
+        }
     },
     login: function(authData) {
         current_user = authData;
         if (this.login_button) this.login_button.remove();
-        $('#navbar').removeClass('hidden').hide().fadeIn(500);
+        $('#navbar').removeClass('hidden');
 
         this.setNavbarText(authData);
         this.app = new AppView({ collection: new DayCollection() });
     },
     logout: function() {
-        if (!current_user) return;
+        this.logged_out = true;
 
-        current_user = null;
+        // only called when the logout button is clicked
         backend.unauth();
-        if (this.app) this.app.remove();
-        this.$el.fadeOut(500, _.bind(this.remove, this));
+
         this.message.text('Bye!');
         this.message.hide().fadeIn(500);
+        this.$el.fadeOut(500);
     },
-
+    showLoginButton: function () {
+        this.login_button = new LoginButtonView();
+    },
     setNavbarText: function(auth) {
         if (auth.provider && auth[auth.provider].displayName) {
             this.login_name.text(auth[auth.provider].displayName);
