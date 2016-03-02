@@ -254,7 +254,7 @@ var MainLoginView = Backbone.View.extend({
     login: function(authData) {
         current_user = authData;
         if (this.login_button) this.login_button.remove();
-        $('#navbar').removeClass('hidden');
+        this.$el.removeClass('hidden');
 
         this.setNavbarText(authData);
         this.app = new AppView({ collection: new DayCollection() });
@@ -271,6 +271,7 @@ var MainLoginView = Backbone.View.extend({
     },
     showLoginButton: function () {
         this.login_button = new LoginButtonView();
+        this.$el.addClass('hidden');
     },
     setNavbarText: function(auth) {
         if (auth.provider && auth[auth.provider].displayName) {
